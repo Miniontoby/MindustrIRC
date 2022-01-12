@@ -1,0 +1,8 @@
+name: "mindustrirc"
+displayName: "MindustrIRC"
+author: Miniontoby
+description: "IRC Mod for Mindustry"
+version: "1.0"
+minGameVersion: "135"
+dependencies: [ ]
+hidden: false
