@@ -3,6 +3,6 @@ displayName: "MindustrIRC"
 author: Miniontoby
 description: "IRC Mod for Mindustry"
 version: "1.0"
-minGameVersion: "135"
+minGameVersion: 122
 dependencies: [ ]
 hidden: false
