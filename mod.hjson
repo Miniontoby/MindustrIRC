@@ -1,8 +1,23 @@
-name: "mindustrirc"
+#the mod name as displayed in-game
 displayName: "MindustrIRC"
-author: Miniontoby
+
+#the internal name of your mod
+name: "mindustrIRC"
+
+#your name
+author: "Miniontoby"
+
+#the fully qualified main class of the mod
+main: "com.miniontoby.MindustrIRC"
+
+#the mod description as seen in the mod dialog
 description: "IRC Mod for Mindustry"
-version: "1.0"
-minGameVersion: 122
-dependencies: [ ]
-hidden: false
+
+#the mod version
+version: 1.0
+
+#the minimum game build required to run this mod
+minGameVersion: 129
+
+#this is a java mod
+java: true

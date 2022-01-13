@@ -1,3 +1,1 @@
-IRC Mod for Mindustry
-
-
+MindustrIRC -> IRC mod
