@@ -7,14 +7,15 @@ import mindustry.content.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.mod.*;
-import mindustry.ui.dialogs.*;
 
 public class MindustrIRC extends Mod {
 	public MindustrIRC(){
-		Log.info("Loaded ExampleJavaMod constructor.");
-
+		Events.on(ClientLoadEvent.class, a -> {
+			Vars.enableConsole = true;
+			Log.info("Loaded MindustrIRC constructor.");
+		});
 		Events.on(PlayerChatEvent.class, e -> {
-			
+			Call.sendChatMessage("Hey");
 		});
 	}
 
