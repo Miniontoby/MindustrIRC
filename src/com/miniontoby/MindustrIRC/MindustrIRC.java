@@ -7,7 +7,7 @@ import mindustry.content.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.mod.*;
-import static Vars.*;
+import mindustry.Vars.*;
 
 public class MindustrIRC extends Mod {
 	public MindustrIRC(){
@@ -26,7 +26,7 @@ public class MindustrIRC extends Mod {
 	
 	@Override
 	public void init(){
-  		if(headless){
+  		if(Vars.headless){
 		    Log.info("Mod loaded");
   		}
 	}
