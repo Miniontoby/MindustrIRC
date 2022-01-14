@@ -1,4 +1,4 @@
-package com.miniontoby;
+package com.miniontoby.MindustrIRC;
 
 import arc.*;
 import arc.util.*;
@@ -10,7 +10,7 @@ import mindustry.mod.*;
 
 public class MindustrIRC extends Mod {
 	public MindustrIRC(){
-		Events.on(ClientLoadEvent.class, a -> {
+		Events.on(ServerLoadEvent.class, a -> {
 			Vars.enableConsole = true;
 			Log.info("Loaded MindustrIRC constructor.");
 		});
