@@ -9,7 +9,7 @@ import mindustry.gen.*;
 import mindustry.mod.*;
 import mindustry.Vars.*;
 
-public class MindustrIRC extends Mod {
+public class MindustrIRC extends Plugin {
 	public MindustrIRC(){
 		Events.on(ServerLoadEvent.class, a -> {
 			Log.info("Loaded MindustrIRC constructor.");
