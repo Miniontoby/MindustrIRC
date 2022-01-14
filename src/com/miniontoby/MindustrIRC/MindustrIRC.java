@@ -7,11 +7,11 @@ import mindustry.content.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.mod.*;
+import static Vars.*;
 
 public class MindustrIRC extends Mod {
 	public MindustrIRC(){
 		Events.on(ServerLoadEvent.class, a -> {
-			Vars.enableConsole = true;
 			Log.info("Loaded MindustrIRC constructor.");
 		});
 		Events.on(PlayerChatEvent.class, e -> {
@@ -26,7 +26,7 @@ public class MindustrIRC extends Mod {
 	
 	@Override
 	public void init(){
-  		if(Vars.headless){
+  		if(headless){
 		    Log.info("Mod loaded");
   		}
 	}
