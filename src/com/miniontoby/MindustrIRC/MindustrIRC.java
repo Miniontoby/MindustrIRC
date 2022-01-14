@@ -23,4 +23,11 @@ public class MindustrIRC extends Mod {
 	public void loadContent(){
 		Log.info("Loading some example content.");
 	}
+	
+	@Override
+	public void init(){
+  		if(Vars.headless){
+		    Log.info("Mod loaded");
+  		}
+	}
 }
