@@ -4,7 +4,7 @@ description: "IRC Mod for Mindustry"
 
 author: "Miniontoby"
 version: 1.0.0
-minGameVersion: 129
+minGameVersion: 122
 hidden: true
 
 main: "com.miniontoby.MindustrIRC.MindustrIRC"
