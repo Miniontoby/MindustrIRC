@@ -1,3 +1,7 @@
-1.0.0
-- Started the project
-*Will add more later...*
+1.1.0:
+- Got the plugin working
+- Connects to IRC
+- Relays messages, joins, parts, quits, NICK
+- CTCP kind of working
+
+
