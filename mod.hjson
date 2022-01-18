@@ -1,9 +1,9 @@
 displayName: "MindustrIRC"
-name: "mindustrIRC"
+name: "mindustrirc"
 description: "IRC Mod for Mindustry"
 
 author: "Miniontoby"
-version: 1.0.0
+version: 1.1.0
 minGameVersion: 122
 hidden: true
 
