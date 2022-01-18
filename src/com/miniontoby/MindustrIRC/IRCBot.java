@@ -34,7 +34,7 @@ public class IRCBot extends Thread {
 		output = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
 	}
 
-	private void disconnect() throws Exception {
+	public void disconnect() throws Exception {
 		connection.close();
 	}
 

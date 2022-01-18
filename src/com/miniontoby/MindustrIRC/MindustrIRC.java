@@ -24,6 +24,8 @@ public class MindustrIRC extends Plugin {
 	static public String version = "1.0.0";
 	static public String ctcp_version = "MindustrIRC v" + version;
 
+	static private boolean started = false;
+
 	static public void ConsoleLog(String message){
 		Log.info("[MindustrIRC] " + message);
 	}
@@ -68,21 +70,12 @@ public class MindustrIRC extends Plugin {
 	public void init(){
 		if(Vars.headless){
 			ConsoleLog("Loaded!");
+			Core.settings.defaults("ircServer", "irc.libera.chat", "ircPort", 6667, "ircNickname", "MindustrIRC", "ircChannel", "#mindustry");
 			if (Core.settings.has("ircServer") && Core.settings.has("ircPort") && Core.settings.has("ircNickname") && Core.settings.has("ircChannel")) {
 				server = Core.settings.getString("ircServer");
 				port = Core.settings.getInt("ircPort");
 				nickname = Core.settings.getString("ircNickname");
 				channel = Core.settings.getString("ircChannel");
-			} else {
-				Core.settings.put("ircServer", "irc.ircforever.org");
-				Core.settings.put("ircPort", 6667);
-				Core.settings.put("ircNickname", "MindustrIRC");
-				Core.settings.put("ircChannel", "#mindustry");
-
-				server = "irc.ircforever.org";
-				port = 6667;
-				nickname = "MindustrIRC";
-				channel = "#mindustry";
 			}
 			setupGameListeners();
 			connectToIRC();
@@ -97,6 +90,21 @@ public class MindustrIRC extends Plugin {
 	}
 
 	static private void setupGameListeners(){
+		Events.on(PlayEvent.class, event -> {
+			if (!started) {
+				IRCMessage("The server just started hosting a game! Join now!", channel, true);
+				started = true;
+			} else if (Seqsize(Vars.net.getConnections()) != 0){
+				IRCMessage("A new game has started!", channel, true);
+			}
+		});
+		Events.on(DisposeEvent.class, event -> {
+			try {
+				bot.disconnect();
+			} catch (Exception ex) {
+			}
+		});
+
 		Events.on(GameOverEvent.class, event -> {
 			if (Seqsize(Vars.net.getConnections()) != 0){
 				IRCMessage("Game over!", channel, true);
