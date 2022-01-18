@@ -20,7 +20,7 @@ It also comes with some IRC sided commands, like `players`. To use them send at 
 
 To install this mod, go to your `config/mods/` folder and run the following command in shell:
 
-$ wget "https://edugit.org/Miniontoby/mindustrirc/-/raw/main/build/libs/mindustrircDesktop.jar?inline=false"
+$ wget "https://edugit.org/Miniontoby/mindustrirc/-/raw/main/build/libs/mindustrirc.jar?inline=false"
 
 
 ## How to use?
