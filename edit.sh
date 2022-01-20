@@ -1,8 +1,8 @@
 #!/bin/ksh
 if [[ "x$1" == "x" ]]; then
-	FILE="MindustrIRC"
+	FILE="MinDiscory"
 else
 	FILE="$1"
 fi
 
-nano src/com/miniontoby/MindustrIRC/$FILE.java
+nano src/com/miniontoby/MinDiscory/$FILE.java
