@@ -1,11 +1,11 @@
-displayName: "MinDiscory"
-name: "mindiscory"
-description: "Discord Plugin for Mindustry"
+displayName: "MindustrIRC"
+name: "mindustrirc"
+description: "IRC Mod for Mindustry"
 
 author: "Miniontoby"
-version: 1.0.0
+version: 1.1.0
 minGameVersion: 122
 hidden: true
 
-main: "com.miniontoby.MinDiscory.MinDiscory"
+main: "com.miniontoby.MindustrIRC.MindustrIRC"
 java: true
