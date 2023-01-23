@@ -1,6 +1,7 @@
 package com.miniontoby.MindustrIRC;
 
 import com.miniontoby.MindustrIRC.IRCBot;
+import com.miniontoby.MindustrIRC.BotCommands;
 
 import java.net.*;
 import java.io.*;
@@ -19,15 +20,32 @@ public class MindustrIRC extends Plugin {
 	static private IRCBot bot;
 	static public String server = Core.settings.getString("ircServer");
 	static public int port = Core.settings.getInt("ircPort");
-	static public String nickname = Core.settings.getString("ircNickname");
-	static public String channel = Core.settings.getString("ircChannel");
-	static public String version = "1.0.0";
+	static private String nickname = Core.settings.getString("ircNickname");
+	static private String realname = Core.settings.getString("ircRealname");
+	static private String password = Core.settings.getString("ircPassword");
+	static private String channel = Core.settings.getString("ircChannel");
+	static public String version = "1.1.0";
 	static public String ctcp_version = "MindustrIRC v" + version;
 
-	static private boolean started = false;
+	static public boolean started = false;
 
-	static public void ConsoleLog(String message){
-		Log.info("[MindustrIRC] " + message);
+	static public void ConsoleLog(String message, boolean withPrefix){
+		if (withPrefix) Log.info("[MindustrIRC] " + message);
+		else Log.info(message);
+
+//		try(FileWriter fw = new FileWriter("logs.txt", true);
+//		BufferedWriter bw = new BufferedWriter(fw);
+//		PrintWriter out = new PrintWriter(bw)) {
+//			if (withPrefix) out.println("[MindustrIRC] " + message);
+//			else out.println(message);
+//		} catch (IOException e) {}
+	}
+	static public void ConsoleLog(String message) {
+		ConsoleLog(message, false);
+	}
+
+	static public String getNickname(){
+		return nickname;
 	}
 
 	static public void IRCMessage(String message, String to, boolean withThing) {
@@ -38,53 +56,56 @@ public class MindustrIRC extends Plugin {
 				bot.sendMessage(to, "[MindustrIRC] " + message);
 			}
 		} catch (Exception ex){
-			ConsoleLog("IRCMessage: Exception: " + ex);
+			ConsoleLog("IRCMessage: Exception: " + ex, true);
 		}
 	}
 	static public void IRCNotice(String message, String to) {
 		try {
 			bot.sendNotice(to, message);
 		} catch (Exception ex){
-			ConsoleLog("IRCNotice: Exception: " + ex);
+			ConsoleLog("IRCNotice: Exception: " + ex, true);
 		}
 	}
 	static public void ingameMessage(String message) {
 		Call.sendMessage(message);
 
 		String ColorCoded = message.replace("[red]", "\u001B[31m").replace("[white]", "\u001B[37m").replace("[grey]", "\u001B[0m").replace("[[", "[");
-		Log.info(ColorCoded);
+		ConsoleLog(ColorCoded);
 	}
 
 	public static int Seqsize(Iterable data) {
-		if (data instanceof Collection) {
-			return ((Collection<?>) data).size();
-		}
+		if (data instanceof Collection) return ((Collection<?>) data).size();
 		int counter = 0;
-		for (Object i : data) {
-			counter++;
-		}
+		for (Object i : data) counter++;
 		return counter;
 	}
 
 	@Override
 	public void init(){
 		if(Vars.headless){
-			ConsoleLog("Loaded!");
-			Core.settings.defaults("ircServer", "irc.libera.chat", "ircPort", 6667, "ircNickname", "MindustrIRC", "ircChannel", "#mindustry");
-			if (Core.settings.has("ircServer") && Core.settings.has("ircPort") && Core.settings.has("ircNickname") && Core.settings.has("ircChannel")) {
-				server = Core.settings.getString("ircServer");
-				port = Core.settings.getInt("ircPort");
-				nickname = Core.settings.getString("ircNickname");
-				channel = Core.settings.getString("ircChannel");
-			}
+			ConsoleLog("Loaded!", true);
+			Core.settings.defaults("ircServer", "irc.libera.chat", "ircPort", 6667, "ircNickname", "MindustrIRC", "ircRealname", "MindustrIRC Bot by Miniontoby", "ircPassword", "examplepassword", "ircChannel", "#mindustry");
+			loadSettings();
 			setupGameListeners();
 			connectToIRC();
+			BotCommands.start();
+		}
+	}
+
+	public void loadSettings() {
+		if (Core.settings.has("ircServer") && Core.settings.has("ircPort") && Core.settings.has("ircNickname") && Core.settings.has("ircRealname") && Core.settings.has("ircPassword") && Core.settings.has("ircChannel")) {
+			server = Core.settings.getString("ircServer");
+			port = Core.settings.getInt("ircPort");
+			nickname = Core.settings.getString("ircNickname");
+			realname = Core.settings.getString("ircRealname");
+			password = Core.settings.getString("ircPassword");
+			channel = Core.settings.getString("ircChannel");
 		}
 	}
 
 	static private void connectToIRC() {
 		Core.app.post(() -> {
-			bot = new IRCBot(server, port, nickname, channel);
+			bot = new IRCBot(server, port, nickname, realname, password, channel);
 			bot.start();
 		});
 	}
@@ -98,17 +119,14 @@ public class MindustrIRC extends Plugin {
 				IRCMessage("A new game has started!", channel, true);
 			}
 		});
-		Events.on(DisposeEvent.class, event -> {
+		Events.on(DisposeEvent.class, event -> { 
 			try {
-				bot.disconnect();
-			} catch (Exception ex) {
-			}
+				bot.shutdown();
+			} catch (Exception ex) {}
 		});
 
 		Events.on(GameOverEvent.class, event -> {
-			if (Seqsize(Vars.net.getConnections()) != 0){
-				IRCMessage("Game over!", channel, true);
-			}
+			if (Seqsize(Vars.net.getConnections()) != 0) IRCMessage("Game over!", channel, true);
 		});
 		Events.on(WinEvent.class, event -> {
 			IRCMessage("Win Event!", channel, true);
@@ -157,13 +175,15 @@ public class MindustrIRC extends Plugin {
 								default:
 									break;
 							}
-						} else {
+						} 
+						else {
 							for (int i = 4; i < data.length; i++){ message += " " + data[i]; }
-
 							ingameMessage("[red][[[grey]" + user + "@IRC[red]]:[white] " + message);
-							if (data.length >= 5){
-								handlePrivmsg(data);
-							}
+
+							BotCommands.check_botcmd(user, data[2], message);
+							//if (data.length >= 5){
+							//	BotCommands.handleMessage(data);
+							//}
 						}
 					}
 					break;
@@ -173,9 +193,8 @@ public class MindustrIRC extends Plugin {
 						for (int i = 4; i < data.length; i++){ message += " " + data[i]; }
 
 						ingameMessage("[red]-[grey]" + user + "@IRC[red]-[white] " + message);
-						if (data.length >= 5){
-							handlePrivmsg(data);
-						}
+						// BotCommands.check_botcmd(user, message);
+						if (data.length >= 5) BotCommands.handleMessage(data);
 					}
 					break;
 				case "JOIN":
@@ -204,29 +223,41 @@ public class MindustrIRC extends Plugin {
 		}
 	}
 
-	static private void handlePrivmsg(String[] data){
-		if (data[3].startsWith(":" + nickname)){
-			String from = data[2];
-			String command = data[4];
-			switch (command) {
-				case "help":
-					IRCMessage("Available commands: help, players, version, source", from, false);
-					break;
-				case "players":
-					Seq<String> players = Seq.with(Vars.net.getConnections()).map(con -> con.player.name).removeAll(p -> p == null);
-					IRCMessage("Connected players: " + players.toString(", "), from, false);
-					break;
-				case "version":
-					IRCMessage("Version: " + ctcp_version, from, false);
-					break;
-				case "source":
-					IRCMessage("Source: https://edugit.org/Miniontoby/mindustrirc", from, false);
-					break;
-				default:
-					IRCMessage("Unknown command '" + command + "'. Try 'help'. Or use @playername <message> to send a private message", from, false);
-					break;
+	//register commands that run on the server
+	@Override
+	public void registerServerCommands(CommandHandler handler){
+		handler.register("irc_reconnect", "Reconnect IRC.", args -> {
+			if (bot != null) {
+				try {
+					bot.shutdown();
+				} catch (Exception ex) {
+					ConsoleLog("Didn't shutdown bot because of an error. Please try again.", true);
+				}
 			}
-		}
-
+			connectToIRC();
+		});
+		handler.register("irc_set", "[option] [value]", "Change IRC Config.", args -> {
+			String[] options = {"Server", "Port", "Nickname", "Realname", "Password", "Channel"};
+			if (args.length >= 1) {
+				String optionName = Arrays.stream(options).filter(x -> args[0].equalsIgnoreCase(x)).findFirst().orElse(null);
+				if(optionName != null) {
+					if (args.length == 2){
+						if (optionName == "Port") Core.settings.put("irc"+optionName, Integer.parseInt(args[1]));
+						else Core.settings.put("irc"+optionName, args[1]);
+						ConsoleLog(optionName + " is now set to " + args[1], true);
+						loadSettings();
+					} else {
+						String value = "";
+						if (optionName == "Port") value = Integer.toString(Core.settings.getInt("irc"+optionName));
+						else value = Core.settings.getString("irc"+optionName);
+						ConsoleLog(optionName + " is set to " + value, true);
+					}
+				} else {
+					ConsoleLog(args[0] + " is not a valid option! Please choose one of: "  + String.join(", ", options), true);
+				}
+			} else {
+				ConsoleLog("Available settings: " + String.join(", ", options), true);
+			}
+		});
 	}
 }
