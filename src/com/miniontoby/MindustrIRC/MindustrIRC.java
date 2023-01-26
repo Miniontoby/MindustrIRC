@@ -135,16 +135,17 @@ public class MindustrIRC extends Plugin {
 			IRCMessage("Lose Event!", channel, true);
 		});
 		Events.on(PlayerChatEvent.class, event -> {
-			String playername = event.player.name;
-			String message = event.message;
+			String playername = event.player.plainName();
+			String message = Strings.stripColors(event.message);
+			if (message.startsWith("/")) return;
 			IRCMessage("<" + playername + "> " + message, channel, false);
 		});
 		Events.on(PlayerJoin.class, event -> {
-			String playername = event.player.name;
+			String playername = event.player.plainName();
 			IRCMessage("*** " + playername + " joined the game", channel, false);
 		});
 		Events.on(PlayerLeave.class, event -> {
-			String playername = event.player.name;
+			String playername = event.player.plainName();
 			IRCMessage("*** " + playername + " left the game", channel, false);
 		});
 	}
@@ -158,6 +159,7 @@ public class MindustrIRC extends Plugin {
 		// :NICK!IDENT@BIND.HOST QUIT    :REASON
 		// :NICK!IDENT@BIND.HOST NICK    NEWNICK
 		if (data.length >= 3) {
+			//Log.info(String.join(" ", data));
 			String[] split = data[0].split("!");
 			String user = split[0].substring(1);
 			String message = "";
@@ -165,7 +167,7 @@ public class MindustrIRC extends Plugin {
 			switch (data[1]){
 				case "PRIVMSG":
 					if (data.length >= 4){
-						message = data[3].split(":")[1];
+						message = data[3].split(":",2)[1];
 						if (message.startsWith("\\001")) {
 							switch (message){
 								case "\\001VERSION":
@@ -188,13 +190,12 @@ public class MindustrIRC extends Plugin {
 					}
 					break;
 				case "NOTICE":
-					if (data.length >= 4){
-						message = data[3].split(":")[1];
+					if (data.length >= 4) {
+						message = data[3].split(":",2)[1];
 						for (int i = 4; i < data.length; i++){ message += " " + data[i]; }
-
 						ingameMessage("[red]-[grey]" + user + "@IRC[red]-[white] " + message);
-						// BotCommands.check_botcmd(user, message);
-						if (data.length >= 5) BotCommands.handleMessage(data);
+						BotCommands.check_botcmd(user, data[2], message);
+						//if (data.length >= 5) BotCommands.handleMessage(data);
 					}
 					break;
 				case "JOIN":

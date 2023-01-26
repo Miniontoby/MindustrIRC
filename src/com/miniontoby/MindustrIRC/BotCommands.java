@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.MatchResult;
+import java.lang.Character;
 import arc.struct.Seq;
 import mindustry.Vars;
+import mindustry.gen.Player;
 
 public class BotCommands {
 	// private String[] irctolower = { ["["]="{", ["\\"]="|", ["]"]="}" };
@@ -34,11 +36,9 @@ public class BotCommands {
 
 		// First check for a nick prefix
 		if (message.startsWith(nick)) {
-			//String suffix = message.substring(nick.length() + 1, nick.length() + 2);
-			String suffix = ":";
-
+			String suffix = Character.toString(message.charAt(nick.length()));
 			if (suffix.equals(":") || suffix.equals(",")) {
-				bot_command(user, from, message.substring(nick.length() + 1));
+				bot_command(user, from, message.substring(nick.length() + 1)); // +1 because nick.length() is not from 0 and remove ', '
 				return true;
 			} 
 		}
@@ -63,20 +63,15 @@ public class BotCommands {
 
 			String player_to = matcher2.group(1);
 			String message = matcher2.group(2);
-/*
-		elseif not minetest.get_player_by_name(player_to) then
-			irc.reply("User '"..player_to.."' is not in the game.")
-			return
-		elseif not irc.joined_players[player_to] then
-			irc.reply("User '"..player_to.."' is not using IRC.")
-			return
-		end
-		minetest.chat_send_player(player_to,
-				minetest.colorize(irc.config.pm_color,
-				"PM from "..msg.user.nick.."@IRC: "..message, false))
-*/
-			// MindustrIRC.IRCMessage("Message to " + player_to + ": " + message, "#mindustry", false);
-			MindustrIRC.IRCMessage("Message sent!", from, false);
+
+			//Player target = Seq.with(Vars.net.getConnections()).find(con -> con.player.plainName().contains(player_to, true));
+			Player target = null;
+			if (target == null) {
+				MindustrIRC.IRCMessage("User '" + player_to + "' is not in the game.", from, false);
+			} else {
+				target.sendMessage("[blue][PM] [gray][]${user}@IRC[yellow] => [white] ${message}");
+				MindustrIRC.IRCMessage("Message sent!", from, false);
+			}
 			return;
 		}
 		int pos = text.indexOf(" ", 1);
@@ -95,9 +90,7 @@ public class BotCommands {
 			return;
 		}
 		String message = bot_commands.get(cmd).execute(user, args);
-		if (!message.equals("")){
-			MindustrIRC.IRCMessage(message, from, false);
-		}
+		if (!message.equals("")) MindustrIRC.IRCMessage(message, from, false);
 	}
 
 
@@ -108,7 +101,7 @@ public class BotCommands {
 		}
 		bot_commands.put(name, function);
 	}
-
+	/*
 	static public void handleMessage(String[] data){
 		if (data[3].startsWith(":" + MindustrIRC.getNickname())){
 			String from = data[2];
@@ -131,6 +124,7 @@ public class BotCommands {
 			}
 		}
 	}
+	*/
 	static public HashMap getCommands(){
 		return bot_commands;
 	}

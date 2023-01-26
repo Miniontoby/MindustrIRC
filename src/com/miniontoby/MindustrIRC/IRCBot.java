@@ -88,6 +88,7 @@ public class IRCBot extends Thread {
 
 	public void disconnect() {
 		try {
+			MindustrIRC.ConsoleLog("Disconnect", true);
 			if (output != null) output.close();
 			if (input != null) input.close();
 			if (connection != null) connection.close();
@@ -137,7 +138,7 @@ public class IRCBot extends Thread {
 		sendLoginData();
 		String line = null;
 		while ((line = input.readLine()) != null) {
-			if (line.indexOf("004") >= 0) {
+			if (line.indexOf("376") >= 0) { // 376 = END OF MOTD, Old value = 004
 				break;
 			}
 			else if (line.indexOf("433") >= 0) {
@@ -166,28 +167,32 @@ public class IRCBot extends Thread {
 
 		Runnable backGroundRunnable = new Runnable() {
 		public void run(){
+			String line = null;
 			try {
-				String line = null;
 				while ((line = input.readLine()) != null && running) {
-					if (!running) break;
+					try {
+						if (!running) break;
 
-					String[] dataSplitted = line.split(" ");
-					if (dataSplitted[0].equals("PING")) {
-						output.write("PONG " + dataSplitted[1] + "\r\n");
-						output.flush();
-					}
-					if (dataSplitted[0].equals("QUIT")) {
-						MindustrIRC.ConsoleLog("Received a quit to IRC!");
-						if (dataSplitted[1].equals(nickname)) {
-							MindustrIRC.ConsoleLog("It was me!");
-							running = false;
-							break;
+						String[] dataSplitted = line.split(" ");
+						if (dataSplitted[0].equals("PING")) {
+							output.write("PONG " + dataSplitted[1] + "\r\n");
+							output.flush();
 						}
+						if (dataSplitted[0].equals("QUIT")) {
+							MindustrIRC.ConsoleLog("Received a quit to IRC!");
+							if (dataSplitted[1].equals(nickname)) {
+								MindustrIRC.ConsoleLog("It was me!");
+								running = false;
+								break;
+							}
+						}
+						MindustrIRC.handleIRCMessage(dataSplitted);
+					} catch (Exception ex) {
+						Log.info(ex);
 					}
-					MindustrIRC.handleIRCMessage(dataSplitted);
 				}
-				disconnect();
-			} catch (Exception e){}
+			} catch (IOException e) {}
+			disconnect();
 		}};
 		Thread sampleThread = new Thread(backGroundRunnable);
 		sampleThread.start();
